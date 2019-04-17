@@ -1,4 +1,5 @@
 /* Add your Application JavaScript */
+/*global Vue*/
 Vue.component('app-header', {
     template: `
         <header>
