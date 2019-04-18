@@ -40,7 +40,7 @@ def register():
         
         #flash message to indicate the a successful entry
         success = "User sucessfully registered"
-        return jsonify(message=success)
+        return jsonify(message=success), 201
     else:
         #flash message to indicate registration failure
         failure = "User information not submitted."
@@ -52,7 +52,7 @@ def register():
 @app.route("/api/auth/login", methods=["POST"])
 def login():
     form = LoginForm()
-    if request.method == "POST" and form.validate_on_submit() == True:
+    if request.method == "POST":
         username = form.username.data
         password = form.password.data
         
@@ -73,7 +73,6 @@ def login():
     return jsonify(error=failure)
 
 
-
 #Api route to allow the user to logout
 @app.route("/api/auth/logout", methods=["GET"])
 @login_required
@@ -83,6 +82,37 @@ def logout():
     #Flash message indicating a successful logout
     success = "User successfully logged out."
     return jsonify(message=success)
+
+
+#Api route to create and display the posts for a specific user
+@app.route("/api/users/<user_id>/posts", methods=["POST", "GET"])
+def userPosts(user_id):
+    
+    #Gets the current user to add/display posts to
+    user = db.session.query(Users).get(user_id)
+    
+    form = PostsForm()
+    if request.method == "POST":
+        caption = form.caption.data
+        photo = assignPath(form.photo.data)
+        post = Posts(photo, caption, user_id)
+        db.session.add(post)
+        db.session.commit()
+        
+        #Flash message to indicate a post was added successfully
+        success = "Successfully created a new post"
+        return jsonify(message=success), 201
+        
+    elif request.method == "GET":
+        posts = []
+        for post in user.posts:
+            p = {"id": post.id, "user_id": post.user_id, "photo": post.photo, "description": post.caption, "created_on": post.created_on}
+            posts.append(p)
+        return jsonify(posts=posts)
+        
+    #Flash message to indicate an error occurred
+    failure = "Failed to create/display posts"
+    return jsonify(error=failure)
     
 
 @app.route('/', defaults={'path': ''})

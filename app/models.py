@@ -62,9 +62,10 @@ class Posts(db.Model):
     #Relationship between a post and its likes
     likes = db.relationship('Likes', backref='Posts', passive_deletes=True, lazy=True)
 
-    def __init__(self, photo, caption):
+    def __init__(self, photo, caption, user_id):
         self.photo = photo
         self.caption = caption
+        self.user_id = user_id
 
     def get_id(self):
         try:
@@ -94,8 +95,9 @@ class Follows(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
     follower_id = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, follower_id):
+    def __init__(self, follower_id, user_id):
         self.follower_id = follower_id
+        self.user_id = user_id
 
     def get_id(self):
         try:
