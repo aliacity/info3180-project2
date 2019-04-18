@@ -5,13 +5,48 @@ Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
 
-from app import app
-from flask import render_template, request, redirect, url_for, flash
-from app.models import Users, Likes, Posts, Follows
+import os
+from app import app, db, login_manager
+from flask import render_template, request, redirect, url_for, flash, jsonify
+from flask_login import login_user, logout_user, current_user, login_required
+from app.forms import RegisterForm, LoginForm, PostsForm
+from app.models import Users, Likes, Follows, Posts
+from werkzeug.utils import secure_filename
+from werkzeug.security import check_password_hash
 
 ###
 # Routing for your application.
 ###
+
+#Api route to allow a user to register for the application
+@app.route("/api/users/register", methods=["POST"])
+def register():
+    form = RegisterForm()
+    if request.method == "POST":
+        username = form.username.data
+        password = form.password.data
+        firstname = form.firstname.data
+        lastname = form.lastname.data
+        email = form.email.data
+        location = form.location.data
+        bio = form.biography.data
+        photo = form.photo.data
+        photo = assignPath(form.photo.data)
+        
+        #create user object and add to database
+        user = Users(username, password, firstname, lastname, email, location, bio, photo)
+        db.session.add(user)
+        db.session.commit()
+        
+        #flash message to indicate the a successful entry
+        success = "User sucessfully registered"
+        return jsonify(message=success)
+    else:
+        #flash message to indicate registration failure
+        failure = "User information not submitted."
+        return jsonify(error=failure)
+        
+        
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -26,6 +61,16 @@ def index(path):
     return app.send_static_file('index.html')
 
 
+
+#Save the uploaded photo to a folder
+def assignPath(upload):
+    filename = secure_filename(upload.filename)
+    upload.save(os.path.join(
+                app.config['UPLOAD_FOLDER'], filename
+    ))
+    return filename
+    
+    
 ###
 # The functions below should be applicable to all Flask apps.
 ###

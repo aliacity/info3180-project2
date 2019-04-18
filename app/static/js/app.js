@@ -1,5 +1,6 @@
 /* Add your Application JavaScript */
 /*global Vue*/
+/*global VueRouter*/
 Vue.component('app-header', {
     template: `
         <header>
@@ -9,18 +10,18 @@ Vue.component('app-header', {
                 <span class="navbar-toggler-icon"></span>
               </button>
 
-              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+               <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                   <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    <router-link to="/" class="nav-link">Home<router-link>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">News</a>
+                    <router-link to="/register" class="nav-link">Register</router-link>
                   </li>
                 </ul>
               </div>
             </nav>
-        </header>    
+        </header>     
     `,
     data: function() {}
 });
@@ -36,15 +37,39 @@ Vue.component('app-footer', {
     data: function() {
         return {
             year: (new Date).getFullYear()
-        }
+        };
     }
-})
+});
+
+const Register = Vue.component('register', {
+    
+});
+
+const Home = Vue.component('home', {
+  template: `
+    <div class="home">
+      <img src="/static/images/logo.png" alt="VueJS Logo">
+      <h1>{{ welcome }}</h1>
+    </div>
+  `,
+  data: function() {
+    return {
+      welcome: 'Hello World! Welcome to VueJS'
+    };
+  }
+});
+
+const router = new VueRouter({
+  mode: 'history',
+  routes: [
+    { path: '/', component: Home},
+    { path: '/register', component: Register}
+  ]
+});
 
 
 let app = new Vue({
     el: '#app',
-    data: {
-        welcome: 'Hello World! Welcome to VueJS'
-    }
+    router
 });
 
