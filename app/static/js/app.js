@@ -18,6 +18,9 @@ Vue.component('app-header', {
                   <li class="nav-item">
                     <router-link to="/register" class="nav-link">Register</router-link>
                   </li>
+                  <li class="nav-item">
+                    <router-link to="/login" class="nav-link">Login</router-link>
+                  </li>
                 </ul>
               </div>
             </nav>
@@ -45,6 +48,10 @@ const Register = Vue.component('register', {
     
 });
 
+const Login = Vue.component('login', {
+  
+});
+
 const Home = Vue.component('home', {
   template: `
     <div class="home">
@@ -63,7 +70,8 @@ const router = new VueRouter({
   mode: 'history',
   routes: [
     { path: '/', component: Home},
-    { path: '/register', component: Register}
+    { path: '/register', component: Register},
+    { path: '/login', component: Login}
   ]
 });
 

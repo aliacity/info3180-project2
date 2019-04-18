@@ -22,7 +22,7 @@ from werkzeug.security import check_password_hash
 @app.route("/api/users/register", methods=["POST"])
 def register():
     form = RegisterForm()
-    if request.method == "POST":
+    if request.method == "POST" and form.validate_on_submit() == True:
         username = form.username.data
         password = form.password.data
         firstname = form.firstname.data
@@ -47,6 +47,31 @@ def register():
         return jsonify(error=failure)
         
         
+
+#Api route to allow the user to login into their profile on the application
+@app.route("/api/auth/login", methods=["POST"])
+def login():
+    form = LoginForm()
+    if request.method == "POST" and form.validate_on_submit() == True:
+        username = form.username.data
+        password = form.password.data
+        
+        #Query the database to retrive the recording corresponding to the given username and password
+        user = db.session.query(Users).filter_by(username=username).first()
+        
+        if user is not None and check_password_hash(user.password, password):
+            
+            #gets the user id and load into the session
+            login_user(user)
+            
+            #Flash message to indicate a successful login
+            success = "User successfully logged in."
+            return jsonify(message=success)
+        else:
+            #Flash message to indicate a failed login
+            failure = "User login failed."
+            return jsonify(error=failure)
+
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
