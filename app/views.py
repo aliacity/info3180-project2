@@ -67,11 +67,23 @@ def login():
             #Flash message to indicate a successful login
             success = "User successfully logged in."
             return jsonify(message=success)
-        else:
-            #Flash message to indicate a failed login
-            failure = "User login failed."
-            return jsonify(error=failure)
+       
+    #Flash message to indicate a failed login
+    failure = "User login failed."
+    return jsonify(error=failure)
 
+
+
+#Api route to allow the user to logout
+@app.route("/api/auth/logout", methods=["GET"])
+@login_required
+def logout():
+    logout_user()
+    
+    #Flash message indicating a successful logout
+    success = "User successfully logged out."
+    return jsonify(message=success)
+    
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -85,6 +97,12 @@ def index(path):
     """
     return app.send_static_file('index.html')
 
+
+# user_loader callback. This callback is used to reload the user object from
+# the user ID stored in the session
+@login_manager.user_loader
+def load_user(id):
+    return db.session.query(Users).get(int(id))
 
 
 #Save the uploaded photo to a folder
