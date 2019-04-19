@@ -22,7 +22,7 @@ from werkzeug.security import check_password_hash
 @app.route("/api/users/register", methods=["POST"])
 def register():
     form = RegisterForm()
-    if request.method == "POST" and form.validate_on_submit() == True:
+    if request.method == "POST":
         username = form.username.data
         password = form.password.data
         firstname = form.firstname.data
@@ -86,6 +86,7 @@ def logout():
 
 #Api route to create and display the posts for a specific user
 @app.route("/api/users/<user_id>/posts", methods=["POST", "GET"])
+@login_required
 def userPosts(user_id):
     
     #Gets the current user to add/display posts to
@@ -113,7 +114,27 @@ def userPosts(user_id):
     #Flash message to indicate an error occurred
     failure = "Failed to create/display posts"
     return jsonify(error=failure)
+
+
+#Api route for a user to follow another user
+@app.route("/api/users/<user_id>/follow", methods=["POST"])
+@login_required
+def following(user_id):
+    if current_user.is_authenticated():
+        id = current_user.id
+        follow = Follows(id, user_id)
+        db.session.add(follow)
+        db.session.commit()
+        
+        #Flash message to indicate a successful following
+        success = "You are now following that user"
+        return jsonify(message=success)
     
+    #Flash message to indicate that an error occurred
+    failure = "Failed to follow user"
+    return jsonify(error=failure)
+
+
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
