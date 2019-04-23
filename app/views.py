@@ -135,6 +135,35 @@ def following(user_id):
     return jsonify(error=failure)
 
 
+#Api route to display all users and their posts
+@app.route("/api/posts", methods=["GET"])
+@login_required
+def allPosts():
+    posts = []
+    users = db.session.query(Users).all()
+    for user in users:
+        for post in user.posts:
+            p = {"id": post.id, "user_id": post.user_id, "photo": post.photo, "description": post.caption, "created_on": post.created_on, "likes": len(post.likes)}
+            posts.append(p)
+    return jsonify(posts=posts)
+    
+    
+#Api route to set a like on a current post
+@app.route("/api/posts/<post_id>/like", methods=["POST"])
+@login_required
+def likePost(post_id):
+    post = db.session.query(Posts).filter_by(id=post_id).first()
+    if current_user.is_authenticated():
+        id = current_user.id
+        like = Likes(id, post_id)
+        db.session.add(like)
+        db.session.commit()
+        return jsonify(message="Post Liked!", likes=len(post.likes))
+    
+    #Flash message to indicate that an error occurred
+    failure = "Failed to like post"
+    return jsonify(error=failure)
+
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
