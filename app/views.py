@@ -6,7 +6,7 @@ This file creates your application.
 """
 
 import os
-from app import app, db, login_manager
+from app import app, db, csrf, login_manager
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
 from app.forms import RegisterForm, LoginForm, PostsForm
@@ -193,7 +193,14 @@ def assignPath(upload):
     ))
     return filename
     
-    
+
+
+@app.route('/')
+def home():
+    """Render website's home page."""
+    return render_template('index.html')
+
+
 ###
 # The functions below should be applicable to all Flask apps.
 ###

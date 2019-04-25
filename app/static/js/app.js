@@ -1,7 +1,4 @@
 /* Add your Application JavaScript */
-/*global Vue*/
-/*global VueRouter*/
-/*global fetch*/
 Vue.component('app-header', {
     template: `
         <header>
@@ -101,8 +98,7 @@ const Register = Vue.component('register', {
           method: 'POST',
           body: registrationInfo,
           headers: {
-            'X-CSRFToken': token,
-            'Content-Type': "multipart/form-data"
+            'X-CSRFToken': token
           },
           credentials: 'same-origin'
         })
@@ -125,7 +121,7 @@ const Login = Vue.component('login', {
         <div style="width: 800px; margin: 0 350px 0 350px;">
           <h4> Login </h4>
           <div class="border-top rounded bg-white">
-            <form id="loginForm" method="post" enctype="multipart/form-data" @submit.prevent="login" class="col-md-12" style="padding: 15px 15px 30px 15px;">
+            <form id="loginForm" method="post" @submit.prevent="login" class="col-md-12" style="padding: 15px 15px 30px 15px;">
               <div class="form-group">
                 <label> Username </label>
                 <input type="text" name="username" class="form-control">
@@ -142,14 +138,15 @@ const Login = Vue.component('login', {
   `,
   methods: {
       login: function() {
-        let loginForm = document.getElementById('registerForm');
+        let loginForm = document.getElementById('loginForm');
         let loginInfo = new FormData(loginForm);
         
         fetch("/api/auth/login", {
           method: 'POST',
           body: loginInfo,
           headers: {
-            'Content-Type': "application/json"
+            'X-CSRFToken': token,
+            'Content-Type': 'application/json'
           },
           credentials: 'same-origin'
         })
