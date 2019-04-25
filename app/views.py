@@ -22,7 +22,7 @@ from werkzeug.security import check_password_hash
 @app.route("/api/users/register", methods=["POST"])
 def register():
     form = RegisterForm()
-    if request.method == "POST":
+    if request.method == "POST" and form.validate_on_submit() == True:
         username = form.username.data
         password = form.password.data
         firstname = form.firstname.data
@@ -52,7 +52,7 @@ def register():
 @app.route("/api/auth/login", methods=["POST"])
 def login():
     form = LoginForm()
-    if request.method == "POST":
+    if request.method == "POST" and form.validate_on_submit() == True:
         username = form.username.data
         password = form.password.data
         
@@ -93,7 +93,7 @@ def userPosts(user_id):
     user = db.session.query(Users).get(user_id)
     
     form = PostsForm()
-    if request.method == "POST":
+    if request.method == "POST" and form.validate_on_submit() == True:
         caption = form.caption.data
         photo = assignPath(form.photo.data)
         post = Posts(photo, caption, user_id)
@@ -128,7 +128,7 @@ def following(user_id):
         
         #Flash message to indicate a successful following
         success = "You are now following that user"
-        return jsonify(message=success)
+        return jsonify(message=success), 201
     
     #Flash message to indicate that an error occurred
     failure = "Failed to follow user"
@@ -145,7 +145,7 @@ def allPosts():
         for post in user.posts:
             p = {"id": post.id, "user_id": post.user_id, "photo": post.photo, "description": post.caption, "created_on": post.created_on, "likes": len(post.likes)}
             posts.append(p)
-    return jsonify(posts=posts)
+    return jsonify(posts=posts), 201
     
     
 #Api route to set a like on a current post
@@ -158,7 +158,7 @@ def likePost(post_id):
         like = Likes(id, post_id)
         db.session.add(like)
         db.session.commit()
-        return jsonify(message="Post Liked!", likes=len(post.likes))
+        return jsonify(message="Post Liked!", likes=len(post.likes)), 201
     
     #Flash message to indicate that an error occurred
     failure = "Failed to like post"

@@ -1,7 +1,13 @@
 body {
     padding-top: 5rem;
+    background-color: #fef5e7;
 }
 
 footer  {
     padding-top: 20px;
+}
+
+.no-padding {
+  padding-left: 0;
+  padding-right: 0;
 }
