@@ -7,7 +7,7 @@ This file creates your application.
 
 import os
 from app import app, db, csrf, login_manager
-from flask import render_template, request, redirect, url_for, flash, jsonify
+from flask import g, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
 from app.forms import RegisterForm, LoginForm, PostsForm
 from app.models import Users, Likes, Follows, Posts
@@ -39,7 +39,7 @@ def requires_auth(f):
 
         token = parts[1]
         try:
-            payload = jwt.decode(token, 'some-secret')
+            payload = jwt.decode(token, app.config['SECRET_KEY'])
 
         except jwt.ExpiredSignature:
             return jsonify({'code': 'token_expired', 'description': 'token is expired'}), 401
@@ -103,13 +103,12 @@ def login():
         
         if user is not None and check_password_hash(user.password, password):
             
+            login_user(user)
+
             #creates bearer token for user
             payload = {'user': user.username}
             jwt_token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm = 'HS256').decode('utf-8')
 
-            #gets the user id and load into the session
-            login_user(user)
-            
             #Flash message to indicate a successful login
             success = "User successfully logged in."
             return jsonify(message=success, token=jwt_token, user_id=user.id)
@@ -124,10 +123,10 @@ def login():
 
 #Api route to allow the user to logout
 @app.route("/api/auth/logout", methods=["GET"])
-@requires_auth
+@login_required
 def logout():
     logout_user()
-    
+
     #Flash message indicating a successful logout
     success = "User successfully logged out."
     return jsonify(message=success)
@@ -137,10 +136,6 @@ def logout():
 @app.route("/api/users/<user_id>/posts", methods=["POST", "GET"])
 @requires_auth
 def userPosts(user_id):
-    
-    #Gets the current user to add/display posts to
-    user = db.session.query(Users).get(user_id)
-    
     form = PostsForm()
     if request.method == "POST" and form.validate_on_submit() == True:
         caption = form.caption.data
@@ -154,6 +149,8 @@ def userPosts(user_id):
         return jsonify(message=success), 201
         
     elif request.method == "GET":
+        #Gets the current user to add/display posts to
+        user = db.session.query(Users).get(user_id)
         posts = []
         for post in user.posts:
             p = {"id": post.id, "user_id": post.user_id, "photo": post.photo, "description": post.caption, "created_on": post.created_on}
@@ -162,7 +159,7 @@ def userPosts(user_id):
         
     #Flash message to indicate an error occurred
     failure = "Failed to create/display posts"
-    return jsonify(error=failure)
+    return jsonify(error=failure), 401
 
 
 #Api route for a user to follow another user

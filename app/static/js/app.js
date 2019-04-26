@@ -134,26 +134,26 @@ const Register = Vue.component('register', {
 const Login = Vue.component('login', {
   template:`
     <div style="display:flex; justify-content: center;">
-        <div style="width: 800px; margin: 0 350px 0 350px;">
-          <h4> Login </h4>
-          <div class="border-top rounded bg-white">
-            <div v-if='error'>
-              {{ message }}
-            </div>
-            <form id="loginForm" method="post" @submit.prevent="login" class="col-md-12" style="padding: 15px 15px 30px 15px;">
-              <div class="form-group">
-                <label> Username </label>
-                <input type="text" name="username" class="form-control">
-              </div>
-              <div class="form-group">
-                <label> Password </label>
-                <input type="password" name="password" class="form-control">
-              </div>
-              <input type="submit" value="Login" name="register" class="btn btn-success btn-block">
-            </form>
+      <div style="width: 800px; margin: 0 350px 0 350px;">
+        <h4> Login </h4>
+        <div class="border-top rounded bg-white">
+          <div v-if='error'>
+            {{ message }}
           </div>
+          <form id="loginForm" method="post" @submit.prevent="login" class="col-md-12" style="padding: 15px 15px 30px 15px;">
+            <div class="form-group">
+              <label> Username </label>
+              <input type="text" name="username" class="form-control">
+            </div>
+            <div class="form-group">
+              <label> Password </label>
+              <input type="password" name="password" class="form-control">
+            </div>
+            <input type="submit" value="Login" name="login" class="btn btn-success btn-block">
+          </form>
         </div>
       </div>
+    </div>
   `,
   methods: {
       login: function() {
@@ -176,11 +176,11 @@ const Login = Vue.component('login', {
           console.log(jsonResponse);
           if(jsonResponse.hasOwnProperty("token")){
             let jwt_token = jsonResponse.token;
-            
-            user={'token':jwt_token, id: jsonResponse.user_id};
+            let id = jsonResponse.user_id;
 
             /*Stores the jwt locally to be accessed later*/
             localStorage.setItem('token', jwt_token);
+            localStorage.setItem('current_user', id);
 
             router.push('/explore')
           }else{
@@ -203,35 +203,57 @@ const Login = Vue.component('login', {
 });
 
 const Logout = Vue.component('logout', {
-  
+  template:`<div></div>`,
+  created: function(){
+    fetch("api/auth/logout", {
+      method: 'GET'
+    })
+    .then(function(response){
+      return response.json();
+    })
+    .then(function(jsonResponse){
+      console.log(jsonResponse);
+      localStorage.removeItem('token');
+      console.info('Token removed from localStorage.');
+      
+      router.push('/');
+    })
+    .catch(function(error){
+      console.log(error);
+    });
+  }
 });
 
 const Explore = Vue.component('explore', {
   template: `
-    <div>
-      <div v-if='valid'>
-        {{ message }}
+    <div class="row">
+      <div class="col-md-7 ml-5 mr-5" v-if='valid'>
+        <h5> {{ message }} </h5>
       </div>
-      <ul class="row">
-        <li v-for="post in posts" class="pt-3 col-sm-4">
-          <div class="card pt-2 borderCol leftFix btmSpace">
-            <div class="card-head pl-4">
-              <h5 class="card-title">User photo and username</h5>
-            </div>
-            <img class="card-img-top" alt="Post Image" :src= post.photo />
-            <div class="card-body">
-              <small>{{ post.caption }}</small>
-            </div>
-            <div class="card-footer noBorder">
-              <footer>
-                <i class="far fa-heart d-inline-block"></i>
-                {{ post.likes }}
-              </footer>
-              <footer>{{ post.created_on }}</footer>
-            </div>
+      <div class="col-md-7 ml-5 mr-5 border bg-white rounded" v-for="post in posts">
+        <div class="card">
+          <div class="card-header pl-4 bg-white">
+            <h5 class="card-title"> <img v-bind:src=post.user_photo alt="User profile photo"/> {{ post.username }}</h5>
           </div>
-        </li>
-      </ul>
+          <li class="list-group-item no-padding">
+            <img v-bind:src=post.photo class="card-img-top" alt="Picture posted by the user">
+          </li>
+          <div class="card-body text-muted">
+            <small>{{ post.caption }}</small>
+          </div>
+          <div class="card-footer">
+            <footer>
+              <i class="far fa-heart d-inline-block"></i>
+              {{ post.likes }}
+              Likes
+            </footer>
+            <footer>{{ post.created_on }}</footer>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <router-link to="/posts/new"><input type="submit" value="Submit" class="btn btn-primary btn-block"></router-link>
+      </div>
     </div>
   `,
   created: function(){
@@ -249,14 +271,20 @@ const Explore = Vue.component('explore', {
       return response.json();
     })
     .then(function(jsonResponse){
-      if(jsonResponse.hasOwnProperty("posts")){
-        if(jsonResponse.posts.length !=0){
-          console.log("Posts: "+jsonResponse.posts);
-          self.posts = jsonResponse.posts.reverse();
-        }
-        else{
-          self.valid = true;
-          self.message = 'No posts to be displayed';
+      console.log(jsonResponse);
+      if(jsonResponse.hasOwnProperty("code")){
+        router.replace('/login');
+      }
+      else{
+        if(jsonResponse.hasOwnProperty("posts")){
+          if(jsonResponse.posts.length !=0){
+            console.log("Posts: "+jsonResponse.posts);
+            self.posts = jsonResponse.posts.reverse();
+          }
+          else{
+            self.valid = true;
+            self.message = 'No posts to be displayed';
+          }
         }
       }
     }).catch(function(error){
@@ -277,7 +305,62 @@ const User = Vue.component('user', {
 });
 
 const New = Vue.component('new', {
-  
+  template: `
+    <div style="display:flex; justify-content: center;">
+      <div style="width: 800px; margin: 0 350px 0 350px;">
+        <h4> New Post </h4>
+        <div class="border-top rounded bg-white">
+          <div v-if='error'>
+            {{ message }}
+          </div>
+          <form id="postForm" method="post" enctype="multipart/form-data" @submit.prevent="post" class="col-md-12" style="padding: 15px 15px 30px 15px;">
+            <div class="form-group">
+              <label> Photo </label>
+              <input type="file" name="photo" class="form-control-file">
+            </div>
+            <div class="form-group">
+              <label> Caption </label>
+              <textarea name="caption" class="form-control" rows="3" placeholder="Write a caption..."></textarea>
+            </div>
+            <input type="submit" value="Submit" name="submit" class="btn btn-success btn-block">
+          </form>
+        </div>
+      </div>
+    </div>
+  `,
+  methods: {
+    post: function(){
+      let self = this;
+      let postForm = document.getElementById('postForm');
+      let form_data = new FormData(postForm);
+
+      fetch(`/api/users/${localStorage.current_user}/posts`, {
+        method: 'POST',
+        body: form_data,
+        headers: {
+          'Authorization': `Bearer ${localStorage.token}`,
+          'X-CSRFToken': token
+        },
+        credentials: 'same-origin'
+      })
+      .then(function (response){
+        return response.json();
+      })
+      .then(function (jsonResponse){
+        console.log(jsonResponse);
+        router.push('/explore');
+      })
+      .catch(function (error){
+        console.log(error);
+      })
+    }
+  },
+  data: function(){
+    return {
+      error: false,
+      message: ''
+    }
+  }
 });
 
 const Home = Vue.component('home', {
@@ -317,7 +400,7 @@ const router = new VueRouter({
     { path: '/logout', component: Logout},
     { path: '/explore', component: Explore},
     { path: '/user/<user_id>', component: User},
-    { path: '/post/new', component: New}
+    { path: '/posts/new', component: New}
   ]
 });
 
