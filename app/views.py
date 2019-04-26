@@ -153,7 +153,7 @@ def userPosts(user_id):
         user = db.session.query(Users).get(user_id)
         posts = []
         for post in user.posts:
-            p = {"id": post.id, "user_id": post.user_id, "photo": post.photo, "description": post.caption, "created_on": post.created_on}
+            p = {"id": post.id, "user_id": post.user_id, "photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on}
             posts.append(p)
         return jsonify(posts=posts)
         
@@ -187,10 +187,9 @@ def following(user_id):
 def allPosts():
     posts = []
     users = db.session.query(Users).all()
-    path = app.config['UPLOAD_FOLDER']+'/'
     for user in users:
         for post in user.posts:
-            p = {"id": post.id, "user_id": post.user_id, "username": user.username, "user_photo": path+user.profile_photo, "photo": path+post.photo, "description": post.caption, "created_on": post.created_on, "likes": len(post.likes)}
+            p = {"id": post.id, "user_id": post.user_id, "username": user.username, "user_photo": os.path.join(app.config['GET_FILE'], user.profile_photo), "photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on, "likes": len(post.likes)}
             posts.append(p)
     return jsonify(posts=posts), 201
     

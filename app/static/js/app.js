@@ -230,24 +230,25 @@ const Explore = Vue.component('explore', {
       <div class="col-md-7 ml-5 mr-5" v-if='valid'>
         <h5> {{ message }} </h5>
       </div>
-      <div class="col-md-7 ml-5 mr-5 border bg-white rounded" v-for="post in posts">
-        <div class="card">
-          <div class="card-header pl-4 bg-white">
-            <h5 class="card-title"> <img v-bind:src=post.user_photo alt="User profile photo"/> {{ post.username }}</h5>
+      <div class="col-md-7 ml-5 mr-5 bg-white rounded-lg no-padding" v-for="post in posts">
+        <div class="card rounded-lg border">
+          <div class="card-header bg-white">
+            <p> 
+              <img :src=post.user_photo alt="User profile photo" class="img-size rounded-circle d-inline-block"/>
+              {{ post.username }}
+            </p>
           </div>
-          <li class="list-group-item no-padding">
-            <img v-bind:src=post.photo class="card-img-top" alt="Picture posted by the user">
-          </li>
+          <img :src=post.photo class="card-img-top" alt="Picture posted by the user">
           <div class="card-body text-muted">
-            <small>{{ post.caption }}</small>
+            <small> {{ post.description }}</small>
           </div>
-          <div class="card-footer">
-            <footer>
+          <div class="card-footer bg-white border-0">
+            <small>
               <i class="far fa-heart d-inline-block"></i>
               {{ post.likes }}
               Likes
-            </footer>
-            <footer>{{ post.created_on }}</footer>
+            </small>
+            <small>{{ post.created_on }}</small>
           </div>
         </div>
       </div>
