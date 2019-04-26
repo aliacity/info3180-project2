@@ -13,13 +13,13 @@ Vue.component('app-header', {
                     <router-link to="/" class="nav-link">Home</router-link>
                   </li>
                   <li class="nav-item">
-                    <router-link to="/register" class="nav-link">Explore</router-link>
+                    <router-link to="/explore" class="nav-link">Explore</router-link>
                   </li>
                   <li class="nav-item">
-                    <router-link to="/login" class="nav-link">My Profile</router-link>
+                    <router-link to="/user/<user_id>" class="nav-link">My Profile</router-link>
                   </li>
                   <li class="nav-item">
-                    <router-link to="/login" class="nav-link">Logout</router-link>
+                    <router-link to="/logout" class="nav-link">Logout</router-link>
                   </li>
                 </ul>
               </div>
@@ -50,6 +50,9 @@ const Register = Vue.component('register', {
         <div style="width: 800px; margin: 0 350px 0 350px;">
           <h4> Register </h4>
           <div class="shadow-lg border-top rounded bg-white">
+            <div v-if='error'>
+              {{ message }}
+            </div>
             <form id="registerForm" method="post" enctype="multipart/form-data" @submit.prevent="uploadForm" class="col-md-12" style="padding: 15px 15px 30px 15px;">
               <div class="form-group">
                 <label> Username </label>
@@ -91,6 +94,7 @@ const Register = Vue.component('register', {
     `,
     methods: {
       uploadForm: function() {
+        let self = this;
         let registerForm = document.getElementById('registerForm');
         let registrationInfo = new FormData(registerForm);
         
@@ -107,11 +111,23 @@ const Register = Vue.component('register', {
         })
         .then(function (jsonResponse) {
           console.log(jsonResponse);
+          if (jsonResponse.hasOwnProperty("error")){
+            self.error = true;
+            self.message = jsonResponse.error;
+          }else if(jsonResponse.hasOwnProperty("message")){
+            router.push("/login");
+          }
         })
         .catch(function (error) {
           console.log(error);
         });
       }
+    },
+    data: function(){
+      return {
+        error: false,
+        message: ''
+     }
     }
 });
 
@@ -121,6 +137,9 @@ const Login = Vue.component('login', {
         <div style="width: 800px; margin: 0 350px 0 350px;">
           <h4> Login </h4>
           <div class="border-top rounded bg-white">
+            <div v-if='error'>
+              {{ message }}
+            </div>
             <form id="loginForm" method="post" @submit.prevent="login" class="col-md-12" style="padding: 15px 15px 30px 15px;">
               <div class="form-group">
                 <label> Username </label>
@@ -138,6 +157,7 @@ const Login = Vue.component('login', {
   `,
   methods: {
       login: function() {
+        let self = this;
         let loginForm = document.getElementById('loginForm');
         let loginInfo = new FormData(loginForm);
         
@@ -146,7 +166,6 @@ const Login = Vue.component('login', {
           body: loginInfo,
           headers: {
             'X-CSRFToken': token,
-            'Content-Type': 'application/json'
           },
           credentials: 'same-origin'
         })
@@ -155,12 +174,110 @@ const Login = Vue.component('login', {
         })
         .then(function (jsonResponse) {
           console.log(jsonResponse);
+          if(jsonResponse.hasOwnProperty("token")){
+            let jwt_token = jsonResponse.token;
+            
+            user={'token':jwt_token, id: jsonResponse.user_id};
+
+            /*Stores the jwt locally to be accessed later*/
+            localStorage.setItem('token', jwt_token);
+
+            router.push('/explore')
+          }else{
+            self.error = true
+            self.message = jsonResponse.error
+          }
         })
         .catch(function (error) {
+          self.error = false
           console.log(error);
         });
       }
+    },
+    data: function(){
+      return {
+        error: false,
+        message: ''
+      }
     }
+});
+
+const Logout = Vue.component('logout', {
+  
+});
+
+const Explore = Vue.component('explore', {
+  template: `
+    <div>
+      <div v-if='valid'>
+        {{ message }}
+      </div>
+      <ul class="row">
+        <li v-for="post in posts" class="pt-3 col-sm-4">
+          <div class="card pt-2 borderCol leftFix btmSpace">
+            <div class="card-head pl-4">
+              <h5 class="card-title">User photo and username</h5>
+            </div>
+            <img class="card-img-top" alt="Post Image" :src= post.photo />
+            <div class="card-body">
+              <small>{{ post.caption }}</small>
+            </div>
+            <div class="card-footer noBorder">
+              <footer>
+                <i class="far fa-heart d-inline-block"></i>
+                {{ post.likes }}
+              </footer>
+              <footer>{{ post.created_on }}</footer>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  `,
+  created: function(){
+    let self = this;
+    
+    fetch("/api/posts", {
+      method: 'GET',
+      headers:{
+        'Authorization': `Bearer ${localStorage.token}`,
+        'X-CSRFToken': token
+      },
+      credentials: 'same-origin'
+    })
+    .then(function(response){
+      return response.json();
+    })
+    .then(function(jsonResponse){
+      if(jsonResponse.hasOwnProperty("posts")){
+        if(jsonResponse.posts.length !=0){
+          console.log("Posts: "+jsonResponse.posts);
+          self.posts = jsonResponse.posts.reverse();
+        }
+        else{
+          self.valid = true;
+          self.message = 'No posts to be displayed';
+        }
+      }
+    }).catch(function(error){
+      console.log(error);
+    });
+  },
+  data: function(){
+    return {
+      posts: [],
+      message: '',
+      valid: false
+    }
+  }
+});
+
+const User = Vue.component('user', {
+  
+});
+
+const New = Vue.component('new', {
+  
 });
 
 const Home = Vue.component('home', {
@@ -187,9 +304,7 @@ const Home = Vue.component('home', {
     </div>
   `,
   data: function() {
-    return {
-      welcome: 'Hello World! Welcome to VueJS'
-    };
+    return {};
   }
 });
 
@@ -198,10 +313,13 @@ const router = new VueRouter({
   routes: [
     { path: '/', component: Home},
     { path: '/register', component: Register},
-    { path: '/login', component: Login}
+    { path: '/login', component: Login},
+    { path: '/logout', component: Logout},
+    { path: '/explore', component: Explore},
+    { path: '/user/<user_id>', component: User},
+    { path: '/post/new', component: New}
   ]
 });
-
 
 let app = new Vue({
     el: '#app',

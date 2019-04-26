@@ -13,6 +13,44 @@ from app.forms import RegisterForm, LoginForm, PostsForm
 from app.models import Users, Likes, Follows, Posts
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
+import jwt
+from functools import wraps
+import base64
+
+
+# Create a JWT @requires_auth decorator
+# This decorator can be used to denote that a specific route should check
+# for a valid JWT token before displaying the contents of that route.
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.headers.get('Authorization', None)
+        if not auth:
+            return jsonify({'code': 'authorization_header_missing', 'description': 'Authorization header is expected'}), 401
+
+        parts = auth.split()
+
+        if parts[0].lower() != 'bearer':
+            return jsonify({'code': 'invalid_header', 'description': 'Authorization header must start with Bearer'}), 401
+        elif len(parts) == 1:
+            return jsonify({'code': 'invalid_header', 'description': 'Token not found'}), 401
+        elif len(parts) > 2:
+            return jsonify({'code': 'invalid_header', 'description': 'Authorization header must be Bearer + \s + token'}), 401
+
+        token = parts[1]
+        try:
+            payload = jwt.decode(token, 'some-secret')
+
+        except jwt.ExpiredSignature:
+            return jsonify({'code': 'token_expired', 'description': 'token is expired'}), 401
+        except jwt.DecodeError:
+            return jsonify({'code': 'token_invalid_signature', 'description': 'Token signature is invalid'}), 401
+
+        g.current_user = user = payload
+        return f(*args, **kwargs)
+
+    return decorated
+
 
 ###
 # Routing for your application.
@@ -35,16 +73,20 @@ def register():
         
         #create user object and add to database
         user = Users(username, password, firstname, lastname, email, location, bio, photo)
-        db.session.add(user)
-        db.session.commit()
+        if user is not None:
+            db.session.add(user)
+            db.session.commit()
         
-        #flash message to indicate the a successful entry
-        success = "User sucessfully registered"
-        return jsonify(message=success), 201
-    else:
-        #flash message to indicate registration failure
-        failure = "User information not submitted."
-        return jsonify(error=failure)
+            #flash message to indicate the a successful entry
+            success = "User sucessfully registered"
+            return jsonify(message=success), 201
+
+        error = "An error occured with the server. Try again!"
+        return jsonify(error=error), 401
+    
+    #flash message to indicate registration failure
+    failure = "User information not submitted."
+    return jsonify(error=failure), 401
         
         
 
@@ -61,12 +103,19 @@ def login():
         
         if user is not None and check_password_hash(user.password, password):
             
+            #creates bearer token for user
+            payload = {'user': user.username}
+            jwt_token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm = 'HS256').decode('utf-8')
+
             #gets the user id and load into the session
             login_user(user)
             
             #Flash message to indicate a successful login
             success = "User successfully logged in."
-            return jsonify(message=success)
+            return jsonify(message=success, token=jwt_token, user_id=user.id)
+        
+        error = "Incorrect username or password"
+        return jsonify(error=error), 401
        
     #Flash message to indicate a failed login
     failure = "User login failed."
@@ -75,7 +124,7 @@ def login():
 
 #Api route to allow the user to logout
 @app.route("/api/auth/logout", methods=["GET"])
-@login_required
+@requires_auth
 def logout():
     logout_user()
     
@@ -86,7 +135,7 @@ def logout():
 
 #Api route to create and display the posts for a specific user
 @app.route("/api/users/<user_id>/posts", methods=["POST", "GET"])
-@login_required
+@requires_auth
 def userPosts(user_id):
     
     #Gets the current user to add/display posts to
@@ -118,7 +167,7 @@ def userPosts(user_id):
 
 #Api route for a user to follow another user
 @app.route("/api/users/<user_id>/follow", methods=["POST"])
-@login_required
+@requires_auth
 def following(user_id):
     if current_user.is_authenticated():
         id = current_user.id
@@ -137,20 +186,21 @@ def following(user_id):
 
 #Api route to display all users and their posts
 @app.route("/api/posts", methods=["GET"])
-@login_required
+@requires_auth
 def allPosts():
     posts = []
     users = db.session.query(Users).all()
+    path = app.config['UPLOAD_FOLDER']+'/'
     for user in users:
         for post in user.posts:
-            p = {"id": post.id, "user_id": post.user_id, "photo": post.photo, "description": post.caption, "created_on": post.created_on, "likes": len(post.likes)}
+            p = {"id": post.id, "user_id": post.user_id, "username": user.username, "user_photo": path+user.profile_photo, "photo": path+post.photo, "description": post.caption, "created_on": post.created_on, "likes": len(post.likes)}
             posts.append(p)
     return jsonify(posts=posts), 201
     
     
 #Api route to set a like on a current post
 @app.route("/api/posts/<post_id>/like", methods=["POST"])
-@login_required
+@requires_auth
 def likePost(post_id):
     post = db.session.query(Posts).filter_by(id=post_id).first()
     if current_user.is_authenticated():
