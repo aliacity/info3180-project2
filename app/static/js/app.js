@@ -234,7 +234,7 @@ const Explore = Vue.component('explore', {
         <div class="card rounded-lg border">
           <div class="card-header bg-white">
             <p> 
-              <img :src=post.user_photo alt="User profile photo" class="img-size rounded-circle d-inline-block"/>
+             <router-link to= "/user/<user_id>"> <img :src=post.user_photo alt="User profile photo" class="img-size rounded-circle d-inline-block"/></router-link>
               {{ post.username }}
             </p>
           </div>
