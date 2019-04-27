@@ -238,7 +238,7 @@ const Explore = Vue.component('explore', {
         <div class="card rounded-lg border">
           <div class="card-header bg-white">
             <p> 
-             <router-link to= "/user/<user_id>"> <img :src=post.user_photo alt="User profile photo" class="img-size rounded-circle d-inline-block"/></router-link>
+             <router-link :to="{ name: 'user', params: {user_id: id} }"> <img :src=post.user_photo alt="User profile photo" class="img-size rounded-circle d-inline-block"/></router-link>
               {{ post.username }}
             </p>
           </div>
@@ -300,7 +300,8 @@ const Explore = Vue.component('explore', {
     return {
       posts: [],
       message: '',
-      valid: false
+      valid: false,
+      id: localStorage.current_user
     }
   },
   methods: {
