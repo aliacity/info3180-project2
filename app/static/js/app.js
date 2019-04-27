@@ -218,7 +218,8 @@ const Logout = Vue.component('logout', {
     .then(function(jsonResponse){
       console.log(jsonResponse);
       localStorage.removeItem('token');
-      console.info('Token removed from localStorage.');
+      localStrorage.removeItem('current_user');
+      console.info('Token and current user removed from localStorage.');
       
       router.push('/');
     })
@@ -238,7 +239,7 @@ const Explore = Vue.component('explore', {
         <div class="card rounded-lg border">
           <div class="card-header bg-white">
             <p> 
-             <router-link :to="{ name: 'user', params: {user_id: id} }"> <img :src=post.user_photo alt="User profile photo" class="img-size rounded-circle d-inline-block"/></router-link>
+             <router-link :to="{ name: 'user', params: {user_id: post.user_id} }"> <img :src=post.user_photo alt="User profile photo" class="img-size rounded-circle d-inline-block"/></router-link>
               {{ post.username }}
             </p>
           </div>
