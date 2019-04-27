@@ -16,3 +16,8 @@ footer  {
   width: 60px;
   height: 60px;
 }
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+}
