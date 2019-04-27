@@ -81,6 +81,10 @@ class Likes(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('Posts.id', ondelete='CASCADE'), nullable=False)
 
+    def __init__(self, user_id, post_id):
+        self.user_id = user_id
+        self.post_id = post_id
+
     def get_id(self):
         try:
             return unicode(self.id)  # python 2 support

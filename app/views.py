@@ -187,11 +187,12 @@ def following(user_id):
 @requires_auth
 def allPosts():
     posts = []
-    users = db.session.query(Users).all()
-    for user in users:
-        for post in user.posts:
-            p = {"id": post.id, "user_id": post.user_id, "username": user.username, "user_photo": os.path.join(app.config['GET_FILE'], user.profile_photo), "photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on.strftime("%d %b %Y"), "likes": len(post.likes)}
-            posts.append(p)
+    userPosts = db.session.query(Posts).order_by(Posts.created_on.desc()).all()
+    # users = db.session.query(Users).all()
+
+    for post in userPosts:#                                      this is using the "Users" backref that we assigned to the posts table
+        p = {"id": post.id, "user_id": post.user_id, "username": post.Users.username, "user_photo": os.path.join(app.config['GET_FILE'], post.Users.profile_photo), "photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on.strftime("%d %b %Y"), "likes": len(post.likes)}
+        posts.append(p)
     return jsonify(posts=posts), 201
     
     

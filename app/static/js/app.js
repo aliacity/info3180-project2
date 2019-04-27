@@ -26,7 +26,9 @@ Vue.component('app-header', {
             </nav>
         </header>     
     `,
-    data: function() {}
+    data: function() {
+      return {}
+    }
 });
 
 Vue.component('app-footer', {
@@ -230,7 +232,7 @@ const Explore = Vue.component('explore', {
       <div class="col-md-7 ml-5 mr-5" v-if='valid'>
         <h5> {{ message }} </h5>
       </div>
-      <div class="col-md-7 ml-5 mr-5 mb-5 bg-white rounded-lg no-padding" v-for="post in posts">
+      <div class="col-md-7 ml-5 mr-5 mb-5 bg-white rounded-lg no-padding" v-for="(post, index) in posts">
         <div class="card rounded-lg border">
           <div class="card-header bg-white">
             <p> 
@@ -243,8 +245,8 @@ const Explore = Vue.component('explore', {
             <small> {{ post.description }}</small>
           </div>
           <div class="card-footer bg-white border-0">
-            <small>
-              <i class="far fa-heart d-inline-block"></i>
+            <small class="like">
+              <i class="far fa-heart d-inline-block" v-on:click="like(post.id, index)"></i>
               {{ post.likes }}
               Likes
             </small>
@@ -280,7 +282,7 @@ const Explore = Vue.component('explore', {
         if(jsonResponse.hasOwnProperty("posts")){
           if(jsonResponse.posts.length !=0){
             console.log("Posts: "+jsonResponse.posts);
-            self.posts = jsonResponse.posts.reverse();
+            self.posts = jsonResponse.posts;
           }
           else{
             self.valid = true;
@@ -298,7 +300,29 @@ const Explore = Vue.component('explore', {
       message: '',
       valid: false
     }
-  }
+  },
+  methods: {
+    like: function(postId, index) {
+      let self = this;
+      fetch(`/api/posts/${postId}/like`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.token}`,
+          'X-CSRFToken': token
+        },
+        credentials: 'same-origin'
+      })
+      .then(resp => resp.json())
+      .then(jsonResp => {
+        if (jsonResp.hasOwnProperty("message")) {
+          self.posts[index].likes = jsonResp.likes;
+        } else {
+          console.log(jsonResp.error);
+        }
+
+      }).catch(err => console.log(err));
+    }
+  } 
 });
 
 const User = Vue.component('user', {
