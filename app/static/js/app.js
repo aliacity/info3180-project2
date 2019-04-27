@@ -1,4 +1,10 @@
 /* Add your Application JavaScript */
+/*global Vue */
+/*global VueRouter */
+/*global token */
+/*global localStorage */
+/*global fetch */
+
 Vue.component('app-header', {
     template: `
         <header>
@@ -28,8 +34,8 @@ Vue.component('app-header', {
     `,
     data: function(){
       return { 
-        id: localStorage.hasOwnProperty("current_user") ? localStorage.current_user : null
-      }
+        id: localStorage.current_user
+      };
     }
 });
 
@@ -131,7 +137,7 @@ const Register = Vue.component('register', {
       return {
         error: false,
         message: ''
-     }
+     };
     }
 });
 
@@ -186,14 +192,14 @@ const Login = Vue.component('login', {
             localStorage.setItem('token', jwt_token);
             localStorage.setItem('current_user', id);
 
-            router.push('/explore')
+            router.push('/explore');
           }else{
-            self.error = true
-            self.message = jsonResponse.error
+            self.error = true;
+            self.message = jsonResponse.error;
           }
         })
         .catch(function (error) {
-          self.error = false
+          self.error = false;
           console.log(error);
         });
       }
@@ -202,7 +208,7 @@ const Login = Vue.component('login', {
       return {
         error: false,
         message: ''
-      }
+      };
     }
 });
 
@@ -218,7 +224,7 @@ const Logout = Vue.component('logout', {
     .then(function(jsonResponse){
       console.log(jsonResponse);
       localStorage.removeItem('token');
-      localStrorage.removeItem('current_user');
+      localStorage.removeItem('current_user');
       console.info('Token and current user removed from localStorage.');
       
       router.push('/');
@@ -303,7 +309,7 @@ const Explore = Vue.component('explore', {
       message: '',
       valid: false,
       id: localStorage.current_user
-    }
+    };
   },
   methods: {
     like: function(postId, index) {
@@ -332,9 +338,9 @@ const Explore = Vue.component('explore', {
 const User = Vue.component('user', {
   template: `
     <div>
-      <div class="row bg-white">
-        <img :src=user.user_photo alt="User profile photo" class="card-img-top col-md-3">
-        <div class="col-md-5">
+      <div class="row bg-white no-padding">
+        <img :src="'../' + user.user_photo" alt="User profile photo" class="card-img-top col-md-3 no-padding">
+        <div class="col-md-5 mr-3 no-padding">
           <div class="card-body">
             <p class="card-text heading"> {{user.fname}} {{user.lname}} </p>
             <p class="card-text description text-muted"> {{user.location}} </p>
@@ -342,7 +348,7 @@ const User = Vue.component('user', {
             <p class="card-text description text-muted"> {{user.biography}} </p>
           </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-2 no-padding">
           <p> Posts {{user.postNum}} </p> <p> Followers {{user.followers}} </p>
           <button class="btn btn-primary">Follow</button>
         </div>
@@ -350,7 +356,7 @@ const User = Vue.component('user', {
       <ul class="row list-inline">
         <li class="pt-3 col-sm-4 list-inline-item" v-for="post in user.posts">
           <div class="card-body no-padding">
-            <img :src=post.post_photo alt="Post photo" class="card-img-top">
+            <img :src="'../' + post.post_photo" alt="Post photo" class="card-img-top">
           </div>
         </li>
       </ul>
@@ -380,7 +386,7 @@ const User = Vue.component('user', {
   data: function(){
     return {
       user: {}
-    }
+    };
   }
 });
 
@@ -432,14 +438,14 @@ const New = Vue.component('new', {
       })
       .catch(function (error){
         console.log(error);
-      })
+      });
     }
   },
   data: function(){
     return {
       error: false,
       message: ''
-    }
+    };
   }
 });
 
@@ -471,6 +477,12 @@ const Home = Vue.component('home', {
   }
 });
 
+const NotFound = Vue.component('not-found', {
+  template: `
+    <h1>404 - Not Found </h1>
+  `
+})
+
 const router = new VueRouter({
   mode: 'history',
   routes: [
@@ -480,7 +492,9 @@ const router = new VueRouter({
     { path: '/logout', component: Logout},
     { path: '/explore', component: Explore},
     { path: '/users/:user_id', name:'user', component: User},
-    { path: '/posts/new', component: New}
+    { path: '/posts/new', component: New},
+    // This is a catch all route in case none of the above matches
+    {path: "*", component: NotFound}
   ]
 });
 
