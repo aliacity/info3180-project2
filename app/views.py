@@ -6,6 +6,7 @@ This file creates your application.
 """
 
 import os
+import datetime
 from app import app, db, csrf, login_manager
 from flask import g, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
@@ -153,7 +154,7 @@ def userPosts(user_id):
         user = db.session.query(Users).get(user_id)
         posts = []
         for post in user.posts:
-            p = {"id": post.id, "user_id": post.user_id, "photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on}
+            p = {"id": post.id, "user_id": post.user_id, "photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on.strftime("%d %b %Y"), "likes": len(post.likes)}
             posts.append(p)
         return jsonify(posts=posts)
         
@@ -189,7 +190,7 @@ def allPosts():
     users = db.session.query(Users).all()
     for user in users:
         for post in user.posts:
-            p = {"id": post.id, "user_id": post.user_id, "username": user.username, "user_photo": os.path.join(app.config['GET_FILE'], user.profile_photo), "photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on, "likes": len(post.likes)}
+            p = {"id": post.id, "user_id": post.user_id, "username": user.username, "user_photo": os.path.join(app.config['GET_FILE'], user.profile_photo), "photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on.strftime("%d %b %Y"), "likes": len(post.likes)}
             posts.append(p)
     return jsonify(posts=posts), 201
     
