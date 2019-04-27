@@ -8,7 +8,7 @@ Vue.component('app-header', {
                   Photogram
               </router-link>
                <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-                <ul class="navbar-nav mr-auto">
+                <ul class="navbar-nav">
                   <li class="nav-item active">
                     <router-link to="/" class="nav-link">Home</router-link>
                   </li>
