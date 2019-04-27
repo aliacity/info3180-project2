@@ -16,7 +16,7 @@ Vue.component('app-header', {
                     <router-link to="/explore" class="nav-link">Explore</router-link>
                   </li>
                   <li class="nav-item">
-                    <router-link to="/user/<user_id>" class="nav-link">My Profile</router-link>
+                    <router-link :to="{ name: 'user', params: {user_id: id} }" class="nav-link">My Profile</router-link>
                   </li>
                   <li class="nav-item">
                     <router-link to="/logout" class="nav-link">Logout</router-link>
@@ -26,7 +26,11 @@ Vue.component('app-header', {
             </nav>
         </header>     
     `,
-    data: function() {}
+    data: function(){
+      return { 
+        id: localStorage.hasOwnProperty("current_user") ? localStorage.current_user : null
+      }
+    }
 });
 
 Vue.component('app-footer', {
@@ -263,8 +267,7 @@ const Explore = Vue.component('explore', {
     fetch("/api/posts", {
       method: 'GET',
       headers:{
-        'Authorization': `Bearer ${localStorage.token}`,
-        'X-CSRFToken': token
+        'Authorization': `Bearer ${localStorage.token}`
       },
       credentials: 'same-origin'
     })
@@ -302,7 +305,58 @@ const Explore = Vue.component('explore', {
 });
 
 const User = Vue.component('user', {
-  
+  template: `
+    <div>
+      <div class="row bg-white">
+        <img :src=user.user_photo alt="User profile photo" class="card-img-top col-md-3">
+        <div class="col-md-5">
+          <div class="card-body">
+            <p class="card-text heading"> {{user.fname}} {{user.lname}} </p>
+            <p class="card-text description text-muted"> {{user.location}} </p>
+            <p class="card-text description text-muted"> Member sinced {{user.joined}} </p>
+            <p class="card-text description text-muted"> {{user.biography}} </p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <p> Posts {{user.postNum}} </p> <p> Followers {{user.followers}} </p>
+          <button class="btn btn-primary">Follow</button>
+        </div>
+      </div>
+      <ul class="row list-inline">
+        <li class="pt-3 col-sm-4 list-inline-item" v-for="post in user.posts">
+          <div class="card-body no-padding">
+            <img :src=post.post_photo alt="Post photo" class="card-img-top">
+          </div>
+        </li>
+      </ul>
+    </div>
+  `,
+  created: function(){
+    let self = this;
+    
+    fetch(`/api/users/${self.$route.params.user_id}/posts`,{
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.token}`
+      },
+      credentials: 'same-origin'
+    })
+    .then(function (response){
+      return response.json();
+    })
+    .then(function (jsonResponse){
+      console.log(jsonResponse);
+      self.user = jsonResponse.user_data;
+    })
+    .catch(function (error){
+      console.log(error);
+    });
+  },
+  data: function(){
+    return {
+      user: {}
+    }
+  }
 });
 
 const New = Vue.component('new', {
@@ -400,7 +454,7 @@ const router = new VueRouter({
     { path: '/login', component: Login},
     { path: '/logout', component: Logout},
     { path: '/explore', component: Explore},
-    { path: '/user/<user_id>', component: User},
+    { path: '/users/:user_id', name:'user', component: User},
     { path: '/posts/new', component: New}
   ]
 });
