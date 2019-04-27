@@ -163,7 +163,11 @@ def userPosts(user_id):
         posts = []
 
         for post in user.posts:
+<<<<<<< HEAD
             p = {"id": post.id, "user_id": post.user_id, "post_photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on}
+=======
+            p = {"id": post.id, "user_id": post.user_id, "photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on.strftime("%d %b %Y"), "likes": len(post.likes)}
+>>>>>>> ac9e0eaa7bf3a084ed43be129ec2580d6fcfe86d
             posts.append(p)
 
         current["posts"] = posts
@@ -202,7 +206,7 @@ def allPosts():
     users = db.session.query(Users).all()
     for user in users:
         for post in user.posts:
-            p = {"id": post.id, "user_id": post.user_id, "username": user.username, "user_photo": os.path.join(app.config['GET_FILE'], user.profile_photo), "photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on, "likes": len(post.likes)}
+            p = {"id": post.id, "user_id": post.user_id, "username": user.username, "user_photo": os.path.join(app.config['GET_FILE'], user.profile_photo), "photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on.strftime("%d %b %Y"), "likes": len(post.likes)}
             posts.append(p)
     return jsonify(posts=posts), 201
     

@@ -8,7 +8,7 @@ Vue.component('app-header', {
                   Photogram
               </router-link>
                <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-                <ul class="navbar-nav mr-auto">
+                <ul class="navbar-nav">
                   <li class="nav-item active">
                     <router-link to="/" class="nav-link">Home</router-link>
                   </li>
@@ -234,11 +234,11 @@ const Explore = Vue.component('explore', {
       <div class="col-md-7 ml-5 mr-5" v-if='valid'>
         <h5> {{ message }} </h5>
       </div>
-      <div class="col-md-7 ml-5 mr-5 bg-white rounded-lg no-padding" v-for="post in posts">
+      <div class="col-md-7 ml-5 mr-5 mb-5 bg-white rounded-lg no-padding" v-for="post in posts">
         <div class="card rounded-lg border">
           <div class="card-header bg-white">
             <p> 
-              <img :src=post.user_photo alt="User profile photo" class="img-size rounded-circle d-inline-block"/>
+             <router-link to= "/user/<user_id>"> <img :src=post.user_photo alt="User profile photo" class="img-size rounded-circle d-inline-block"/></router-link>
               {{ post.username }}
             </p>
           </div>
