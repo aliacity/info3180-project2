@@ -52,16 +52,6 @@ def requires_auth(f):
 
     return decorated
 
-
-###
-# Routing for your application.
-###
-
-@app.route('/')
-def home():
-    """Render website's home page."""
-    return render_template('index.html')
-
 #Api route to allow a user to register for the application
 @app.route("/api/users/register", methods=["POST"])
 def register():
@@ -163,7 +153,7 @@ def userPosts(user_id):
         posts = []
 
         for post in user.posts:
-            p = {"id": post.id, "user_id": post.user_id, "photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on.strftime("%d %b %Y"), "likes": len(post.likes)}
+            p = {"id": post.id, "user_id": post.user_id, "post_photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on.strftime("%d %b %Y"), "likes": len(post.likes)}
             posts.append(p)
 
         current["posts"] = posts
@@ -280,7 +270,7 @@ def add_header(response):
 @app.errorhandler(404)
 def page_not_found(error):
     """Custom 404 page."""
-    return render_template('404.html'), 404
+    return render_template('index.html'), 404
 
 
 if __name__ == '__main__':
