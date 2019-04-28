@@ -34,7 +34,7 @@ footer  {
   justify-content: space-between;
 }
 
-i {
+i, .like {
   cursor: pointer;
 }
 

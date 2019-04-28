@@ -184,7 +184,7 @@ def following(user_id):
     return jsonify(error=failure)
 
 
-#Api route to display all users and their posts
+#Api route to display all users' posts
 @app.route("/api/posts", methods=["GET"])
 @requires_auth
 def allPosts():
@@ -193,7 +193,9 @@ def allPosts():
     # users = db.session.query(Users).all()
 
     for post in userPosts:#                                      this is using the "Users" backref that we assigned to the posts table
-        p = {"id": post.id, "user_id": post.user_id, "username": post.Users.username, "user_photo": os.path.join(app.config['GET_FILE'], post.Users.profile_photo), "photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on.strftime("%d %b %Y"), "likes": len(post.likes)}
+        likes = [like.user_id for like in post.likes]
+        isLiked = current_user.id in likes
+        p = {"id": post.id, "user_id": post.user_id, "username": post.Users.username, "user_photo": os.path.join(app.config['GET_FILE'], post.Users.profile_photo), "isLiked":isLiked, "photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on.strftime("%d %b %Y"), "likes": len(post.likes)}
         posts.append(p)
     return jsonify(posts=posts), 201
     

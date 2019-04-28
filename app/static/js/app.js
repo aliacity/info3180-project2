@@ -268,8 +268,8 @@ const Explore = Vue.component('explore', {
             <small> {{ post.description }}</small>
           </div>
           <div class="card-footer bg-white border-0">
-            <small class="like">
-              <i class="far fa-heart d-inline-block" v-on:click="like(post.id, index)"></i>
+            <small class="like" v-on:click="like(post.id, index)">
+              <i class="far fa-heart d-inline-block" v-bind:class="{'text-danger': post.isLiked}" ></i>
               {{ post.likes }}
               Likes
             </small>
@@ -337,6 +337,7 @@ const Explore = Vue.component('explore', {
       .then(jsonResp => {
         if (jsonResp.hasOwnProperty("message")) {
           self.posts[index].likes = jsonResp.likes;
+          self.posts[index].isLiked = true;
         } else {
           console.log(jsonResp.error);
         }
