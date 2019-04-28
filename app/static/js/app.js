@@ -26,7 +26,7 @@ Vue.component('app-header', {
                     <router-link to="/explore" class="nav-link font-weight-bold">Explore</router-link>
                   </li>
                   <li class="nav-item active">
-                    <router-link :to="{ name: 'user', params: {user_id: id} }" class="nav-link font-weight-bold">My Profile</router-link>
+                    <span @click="toProfile" style="cursor:pointer;" class="nav-link font-weight-bold">My Profile</span>
                   </li>
                   <li class="nav-item active">
                     <router-link to="/logout" class="nav-link font-weight-bold">Logout</router-link>
