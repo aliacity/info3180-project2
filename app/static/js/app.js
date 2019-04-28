@@ -40,6 +40,12 @@ Vue.component('app-header', {
       return { 
         id: localStorage.current_user
       };
+    }, 
+    methods: {
+      toProfile() {
+        let id = localStorage.getItem('current_user');
+        router.push(`/users/${id}`);
+      }
     }
 });
 
@@ -355,7 +361,7 @@ const User = Vue.component('user', {
         </div>
         <div class="col-md-2 no-padding">
           <p> Posts {{user.postNum}} </p> <p> Followers {{user.followers}} </p>
-          <button class="btn btn-primary">Follow</button>
+          <button v-on:click="follow" class="btn btn-primary">Follow</button>
         </div>
       </div>
       <ul class="row list-inline">
@@ -395,8 +401,33 @@ const User = Vue.component('user', {
   },
   data: function(){
     return {
-      user: {}
+      user: {},
+      following: false
     };
+  },
+  methods: {
+    follow: function() {
+      let self = this;
+      let btn = document.querySelector('.btn.btn-primary');
+
+      fetch(`/api/users/${self.$route.params.user_id}/follow`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.token}`,
+          'X-CSRFToken': token
+        },
+        credentials: 'same-origin'
+      })
+      .then(resp => resp.json())
+      .then(jsonResp => {
+        if (jsonResp.hasOwnProperty("message")) {
+          self.user.followers++;
+          btn.textContent = "Following";
+          btn.classList.remove('btn-primary');
+          btn.classList.add('btn-success');
+        }
+      })
+    }
   }
 });
 
