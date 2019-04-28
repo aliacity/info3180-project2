@@ -202,7 +202,7 @@ const Login = Vue.component('login', {
             localStorage.setItem('token', jwt_token);
             localStorage.setItem('current_user', id);
             
-            router.go();
+            // router.go();
             router.push('/explore');
           }else{
             self.error = true;
@@ -349,22 +349,35 @@ const Explore = Vue.component('explore', {
 const User = Vue.component('user', {
   template: `
     <div>
-      <div class="row bg-white no-padding">
-        <img :src="'../' + user.user_photo" alt="User profile photo" class="card-img-top col-md-3 no-padding profilePic">
-        <div class="col-md-5 mr-3 no-padding">
-          <div class="card-body">
-            <p class="card-title mb-4"> {{user.fname}} {{user.lname}} </p>
-            <p class="card-subtitle text-muted"> {{user.location}} </p>
-            <p class="card-subtitle mb-2 text-muted"> Member since {{user.joined}} </p>
-            <p class="card-text description text-muted"> {{user.biography}} </p>
-          </div>
+      <div class=" row bg-white d-flex flex-row justify-content-between bg-white rounded shadow-sm p-3 mb-3">
+        <div class=" mr-2">
+          <img :src="'../' + user.user_photo" alt="User profile photo" class="profilePic">
         </div>
-        <div class="col-md-2 no-padding">
-          <p> Posts {{user.postNum}} </p> <p> Followers {{user.followers}} </p>
-          <button v-if="user.isFollowing" v-on:click="follow" class="btn btn-success">Following</button>
-          <button v-else v-on:click="follow" class="btn btn-primary">Follow</button>
+        <div class="d-flex flex-column">
+          <p class="font-weight-bold text-muted"> {{user.fname}} {{user.lname}} </p>
+          <p class="text-muted"> 
+            {{user.location}} <br>
+            Member since {{user.joined}} 
+          </p>
+          <p class="text-muted"> {{user.biography}} </p>
+        </div>
+
+        <div class="d-flex flex-column justify-content-between">
+          <div class="d-flex flex-row justify-content-between">
+            <div class="d-flex flex-column justify-content-center align-items-center p-2">
+              <span class="font-weight-bold text-muted">{{ user.postNum }}</span>
+              <p class="font-weight-bold text-muted">Posts</p>
+            </div>
+            <div class="d-flex flex-column justify-content-center align-items-center p-2">
+              <span class="font-weight-bold text-muted">{{ user.followers }}</span>
+              <p class="font-weight-bold text-muted">Followers</p>
+            </div>
+          </div>
+          <button v-if="user.isFollowing" @click="follow" class="btn btn-success font-weight-bold w-100">Following</button>
+          <button v-else v-on:click="follow" class="btn btn-primary font-weight-bold w-100">Follow</button>
         </div>
       </div>
+
       <ul class="row list-inline">
         <li class="col-sm-4" v-for="post in user.posts">
           <div class="card-body no-padding">
