@@ -381,7 +381,7 @@ const User = Vue.component('user', {
       <ul class="row list-inline">
         <li class="col-sm-4" v-for="post in user.posts">
           <div class="card-body no-padding">
-            <img :src="'../' + post.post_photo" alt="Post photo" class="card-img-top postPics">
+            <img :src="'../' + post.post_photo" alt="Post photo" class="img-fluid card-img-top postPics">
           </div>
         </li>
       </ul>

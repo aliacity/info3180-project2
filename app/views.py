@@ -146,14 +146,14 @@ def userPosts(user_id):
     elif request.method == "GET":
         #Gets the current user to add/display posts to
         user = db.session.query(Users).filter_by(id=user_id).first()
-
-        current = {"fname": user.firstname, "lname": user.lastname, "user_photo": os.path.join(app.config['GET_FILE'], user.profile_photo), "location": user.location, "biography": user.biography, "joined": user.joined_on.strftime("%b %Y"), "postNum": len(user.posts), "followers": len(user.followers), "posts": []}
-
-        posts = []
         isFollowing = current_user.id in [ follower.follower_id for follower in user.followers] #checks if the current user if following this user
 
+        current = {"fname": user.firstname, "lname": user.lastname, "user_photo": os.path.join(app.config['GET_FILE'], user.profile_photo), "location": user.location,"isFollowing": isFollowing, "biography": user.biography, "joined": user.joined_on.strftime("%b %Y"), "postNum": len(user.posts), "followers": len(user.followers), "posts": []}
+
+        posts = []
+
         for post in user.posts:
-            p = {"id": post.id, "user_id": post.user_id, "post_photo": os.path.join(app.config['GET_FILE'], post.photo), "isFollowing": isFollowing, "description": post.caption, "created_on": post.created_on.strftime("%d %b %Y"), "likes": len(post.likes)}
+            p = {"id": post.id, "user_id": post.user_id, "post_photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on.strftime("%d %b %Y"), "likes": len(post.likes)}
             posts.append(p)
 
         current["posts"] = posts
