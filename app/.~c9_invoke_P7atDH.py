@@ -132,15 +132,14 @@ def logout():
 
 
 #Api route to get a users details
-@app.route("/api/users/<user_id>", methods=["GET"])
+@app.route("/api")
 @requires_auth
 def userDetails(user_id):
     try:
         user = db.session.query(Users).filter_by(id=user_id).first()
-        isFollowing = current_user.id in [ follower.follower_id for follower in user.followers] #checks if the current user if following this user
     
         current = {"id": user.id, "username": user.username, "firstname": user.firstname, "lastname": user.lastname, "email": user.email, "location": user.location, "biography": user.biography, 
-        "profile_photo": os.path.join(app.config['GET_FILE'], user.profile_photo), "joined": user.joined_on.strftime("%b %Y"), "isFollowing": isFollowing, "posts": []}
+        "profile_photo": os.path.join(app.config['GET_FILE'], user.profile_photo), "joined": user.joined_on.strftime("%b %Y"), "posts": []}
         
         return jsonify(user=current)
     except Exception as e:
@@ -160,10 +159,7 @@ def allPosts():
         # users = db.session.query(Users).all()
     
         for post in userPosts:#                                      this is using the "Users" backref that we assigned to the posts table
-
-            likes = [like.user_id for like in post.likes]
-            isLiked = current_user.id in likes
-            p = {"id": post.id, "user_id": post.user_id, "photo": os.path.join(app.config['GET_FILE'], post.photo), "caption": post.caption, "created_on": post.created_on.strftime("%d %b %Y"), "likes": len(post.likes), "isLiked": isLiked}
+            p = {"id": post.id, "user_id": post.user_id, "photo": os.path.join(app.config['GET_FILE'], post.photo), "caption": post.caption, "created_on": post.created_on.strftime("%d %b %Y"), "likes": len(post.likes)}
             posts.append(p)
         return jsonify(posts=posts), 201
     except Exception as e:
@@ -195,7 +191,7 @@ def userPosts(user_id):
             error = "Internal server error"
             return jsonify(error=error), 401
         
-    else:
+    elif request.method == "GET":
         try:
             #Gets the current user to add/display posts to
             userPosts = db.session.query(Posts).filter_by(user_id=user_id).all()
@@ -218,51 +214,22 @@ def userPosts(user_id):
 
 
 #Api route for a user to follow another user
-@app.route("/api/users/<user_id>/follow", methods=["POST", "GET"])
+@app.route("/api/users/<user_id>/follow", methods=["POST",])
 @requires_auth
 def following(user_id):
-    if request.method == "POST":
-        try:
-            id = current_user.id
-            follow = Follows(id, user_id)
-            db.session.add(follow)
-            db.session.commit()
-            
-            #Flash message to indicate a successful following
-            success = "You are now following that user"
-            return jsonify(message=success), 201
-        except Exception as e:
-            print(e)
-            
-            #Flash message to indicate that an error occurred
-            failure = "Internal error. Failed to follow user"
-            return jsonify(error=failure), 401
-    else:
-        try:
-            followers = db.session.query(Follows).filter_by(user_id=user_id).all()
-            return jsonify(followers=len(followers)), 201
-        except Exception as e:
-            print(e)
-            
-            error = "Internal server error!"
-            return jsonify(error=error), 401
-
-
-# #Api route to display all users' posts
-# @app.route("/api/posts", methods=["GET"])
-# @requires_auth
-# def allPosts():
-#     posts = []
-#     userPosts = db.session.query(Posts).order_by(Posts.created_on.desc()).all()
-#     # users = db.session.query(Users).all()
-
-#     for post in userPosts:#                                      this is using the "Users" backref that we assigned to the posts table
-#         likes = [like.user_id for like in post.likes]
-#         isLiked = current_user.id in likes
-#         p = {"id": post.id, "user_id": post.user_id, "username": post.Users.username, "user_photo": os.path.join(app.config['GET_FILE'], post.Users.profile_photo), "isLiked":isLiked, "photo": os.path.join(app.config['GET_FILE'], post.photo), "description": post.caption, "created_on": post.created_on.strftime("%d %b %Y"), "likes": len(post.likes)}
-#         posts.append(p)
-#     return jsonify(posts=posts), 201
-            
+    if current_user.is_authenticated():
+        id = current_user.id
+        follow = Follows(id, user_id)
+        db.session.add(follow)
+        db.session.commit()
+        
+        #Flash message to indicate a successful following
+        success = "You are now following that user"
+        return jsonify(message=success), 201
+    
+    #Flash message to indicate that an error occurred
+    failure = "Failed to follow user"
+    return jsonify(error=failure)
     
     
 #Api route to set a like on a current post
