@@ -138,7 +138,7 @@ def userDetails(user_id):
     try:
         user = db.session.query(Users).filter_by(id=user_id).first()
     
-        current = {"id": user.id, "username": user.username, "firstname": user.firstname, "lastname": user.lastname, "email": user.email, "location": user.location, "biography": user.biography, 
+        current = {"id": user.id, "firstname": user.firstname, "lastname": user.lastname, "user_photo": os.path.join(app.config['GET_FILE'], user.profile_photo), "location": user.location, "biography": user.biography, "joined": user.joined_on.strftime("%b %Y"), "postNum": len(user.posts), "followers": len(user.followers), "posts": []}
         "profile_photo": os.path.join(app.config['GET_FILE'], user.profile_photo), "joined": user.joined_on.strftime("%b %Y"), "posts": []}
         
         return jsonify(user=current)
@@ -191,7 +191,7 @@ def userPosts(user_id):
             error = "Internal server error"
             return jsonify(error=error), 401
         
-    else:
+    elif request.method == "GET":
         try:
             #Gets the current user to add/display posts to
             userPosts = db.session.query(Posts).filter_by(user_id=user_id).all()
@@ -214,35 +214,22 @@ def userPosts(user_id):
 
 
 #Api route for a user to follow another user
-@app.route("/api/users/<user_id>/follow", methods=["POST", "GET"])
+@app.route("/api/users/<user_id>/follow", methods=["POST",])
 @requires_auth
 def following(user_id):
-    if request.method == "POST":
-        try:
-            id = current_user.id
-            follow = Follows(id, user_id)
-            db.session.add(follow)
-            db.session.commit()
-            
-            #Flash message to indicate a successful following
-            success = "You are now following that user"
-            return jsonify(message=success), 201
-        except Exception as e:
-            print(e)
-            
-            #Flash message to indicate that an error occurred
-            failure = "Internal error. Failed to follow user"
-            return jsonify(error=failure), 401
-    else:
-        try:
-            followers = db.session.query(Follows).filter_by(user_id=user_id).all()
+    if current_user.is_authenticated():
+        id = current_user.id
+        follow = Follows(id, user_id)
+        db.session.add(follow)
+        db.session.commit()
         
-            return jsonify(followers=len(followers)), 201
-        except Exception as e:
-            print(e)
-            
-            error = "Internal server error!"
-            return jsonify(error=error), 401
+        #Flash message to indicate a successful following
+        success = "You are now following that user"
+        return jsonify(message=success), 201
+    
+    #Flash message to indicate that an error occurred
+    failure = "Failed to follow user"
+    return jsonify(error=failure)
     
     
 #Api route to set a like on a current post

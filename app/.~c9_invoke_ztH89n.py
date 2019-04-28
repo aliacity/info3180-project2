@@ -191,7 +191,7 @@ def userPosts(user_id):
             error = "Internal server error"
             return jsonify(error=error), 401
         
-    else:
+    elif request.method == "GET":
         try:
             #Gets the current user to add/display posts to
             userPosts = db.session.query(Posts).filter_by(user_id=user_id).all()
@@ -214,35 +214,22 @@ def userPosts(user_id):
 
 
 #Api route for a user to follow another user
-@app.route("/api/users/<user_id>/follow", methods=["POST", "GET"])
+@app.route("/api/users/<user_id>/follow", methods=["POST",])
 @requires_auth
 def following(user_id):
-    if request.method == "POST":
-        try:
-            id = current_user.id
-            follow = Follows(id, user_id)
-            db.session.add(follow)
-            db.session.commit()
-            
-            #Flash message to indicate a successful following
-            success = "You are now following that user"
-            return jsonify(message=success), 201
-        except Exception as e:
-            print(e)
-            
-            #Flash message to indicate that an error occurred
-            failure = "Internal error. Failed to follow user"
-            return jsonify(error=failure), 401
-    else:
-        try:
-            followers = db.session.query(Follows).filter_by(user_id=user_id).all()
+    if current_user.is_authenticated():
+        id = current_user.id
+        follow = Follows(id, user_id)
+        db.session.add(follow)
+        db.session.commit()
         
-            return jsonify(followers=len(followers)), 201
-        except Exception as e:
-            print(e)
-            
-            error = "Internal server error!"
-            return jsonify(error=error), 401
+        #Flash message to indicate a successful following
+        success = "You are now following that user"
+        return jsonify(message=success), 201
+    
+    #Flash message to indicate that an error occurred
+    failure = "Failed to follow user"
+    return jsonify(error=failure)
     
     
 #Api route to set a like on a current post
@@ -322,3 +309,48 @@ def page_not_found(error):
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port="8080")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
