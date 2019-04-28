@@ -26,7 +26,7 @@ Vue.component('app-header', {
                     <router-link to="/explore" class="nav-link font-weight-bold">Explore</router-link>
                   </li>
                   <li class="nav-item active">
-                    <span @click="toProfile" style="cursor:pointer;" class="nav-link font-weight-bold">My Profile</span>
+                  <span @click="toProfile" style="cursor:pointer;" class="nav-link font-weight-bold">My Profile</span>
                   </li>
                   <li class="nav-item active">
                     <router-link to="/logout" class="nav-link font-weight-bold">Logout</router-link>
@@ -202,7 +202,6 @@ const Login = Vue.component('login', {
             localStorage.setItem('token', jwt_token);
             localStorage.setItem('current_user', id);
             
-            // router.go();
             router.push('/explore');
           }else{
             self.error = true;
@@ -350,46 +349,46 @@ const Explore = Vue.component('explore', {
 
 const User = Vue.component('user', {
   template: `
-    <div>
-      <div class=" row bg-white d-flex flex-row justify-content-between bg-white rounded shadow-sm p-3 mb-3">
-        <div class=" mr-2">
-          <img :src="'../' + user.user_photo" alt="User profile photo" class="profilePic">
-        </div>
-        <div class="d-flex flex-column">
-          <p class="font-weight-bold text-muted"> {{user.fname}} {{user.lname}} </p>
-          <p class="text-muted"> 
-            {{user.location}} <br>
-            Member since {{user.joined}} 
-          </p>
-          <p class="text-muted"> {{user.biography}} </p>
-        </div>
+  <div>
+  <div class=" row bg-white d-flex flex-row justify-content-between bg-white rounded shadow-sm p-3 mb-3">
+    <div class=" mr-2">
+      <img :src="'../' + user.user_photo" alt="User profile photo" class="profilePic">
+    </div>
+    <div class="d-flex flex-column">
+      <p class="font-weight-bold text-muted"> {{user.fname}} {{user.lname}} </p>
+      <p class="text-muted"> 
+        {{user.location}} <br>
+        Member since {{user.joined}} 
+      </p>
+      <p class="text-muted"> {{user.biography}} </p>
+    </div>
 
-        <div class="d-flex flex-column justify-content-between">
-          <div class="d-flex flex-row justify-content-between">
-            <div class="d-flex flex-column justify-content-center align-items-center p-2">
-              <span class="font-weight-bold text-muted">{{ user.postNum }}</span>
-              <p class="font-weight-bold text-muted">Posts</p>
-            </div>
-            <div class="d-flex flex-column justify-content-center align-items-center p-2">
-              <span class="font-weight-bold text-muted">{{ user.followers }}</span>
-              <p class="font-weight-bold text-muted">Followers</p>
-            </div>
-          </div>
-          <div v-if="!isUser">
-            <button v-if="user.isFollowing" @click="follow" class="btn btn-success font-weight-bold w-100">Following</button>
-            <button v-else v-on:click="follow" class="btn btn-primary font-weight-bold w-100">Follow</button>
-          </div>
+    <div class="d-flex flex-column justify-content-between">
+      <div class="d-flex flex-row justify-content-between">
+        <div class="d-flex flex-column justify-content-center align-items-center p-2">
+          <span class="font-weight-bold text-muted">{{ user.postNum }}</span>
+          <p class="font-weight-bold text-muted">Posts</p>
+        </div>
+        <div class="d-flex flex-column justify-content-center align-items-center p-2">
+          <span class="font-weight-bold text-muted">{{ user.followers }}</span>
+          <p class="font-weight-bold text-muted">Followers</p>
         </div>
       </div>
-
-      <ul class="row list-inline">
-        <li class="col-sm-4" v-for="post in user.posts">
-          <div class="card-body no-padding">
-            <img :src="'../' + post.post_photo" alt="Post photo" class="img-fluid card-img-top postPics">
-          </div>
-        </li>
-      </ul>
+      <div v-if="!isUser">
+        <button v-if="user.isFollowing" @click="follow" class="btn btn-success font-weight-bold w-100">Following</button>
+        <button v-else v-on:click="follow" class="btn btn-primary font-weight-bold w-100">Follow</button>
+      </div>
     </div>
+  </div>
+
+  <ul class="row list-inline">
+    <li class="col-sm-4" v-for="post in user.posts">
+      <div class="card-body no-padding">
+        <img :src="'../' + post.post_photo" alt="Post photo" class="img-fluid card-img-top postPics">
+      </div>
+    </li>
+  </ul>
+</div>
   `,
   created: function(){
     let self = this;
