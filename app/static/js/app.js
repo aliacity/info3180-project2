@@ -269,7 +269,8 @@ const Explore = Vue.component('explore', {
           </div>
           <div class="card-footer bg-white border-0">
             <small class="like" v-on:click="like(post.id, index)">
-              <i class="far fa-heart d-inline-block" v-bind:class="{'text-danger': post.isLiked}" ></i>
+              <span v-if="post.isLiked"><i class='fas fa-heart d-inline-block text-danger'></i></span>
+              <span v-else><i class="far fa-heart d-inline-block"></i></span>
               {{ post.likes }}
               Likes
             </small>
@@ -374,8 +375,10 @@ const User = Vue.component('user', {
               <p class="font-weight-bold text-muted">Followers</p>
             </div>
           </div>
-          <button v-if="user.isFollowing" @click="follow" class="btn btn-success font-weight-bold w-100">Following</button>
-          <button v-else v-on:click="follow" class="btn btn-primary font-weight-bold w-100">Follow</button>
+          <div v-if="!isUser">
+            <button v-if="user.isFollowing" @click="follow" class="btn btn-success font-weight-bold w-100">Following</button>
+            <button v-else v-on:click="follow" class="btn btn-primary font-weight-bold w-100">Follow</button>
+          </div>
         </div>
       </div>
 
@@ -390,6 +393,10 @@ const User = Vue.component('user', {
   `,
   created: function(){
     let self = this;
+    let current_user = localStorage.getItem('current_user');
+    let user = self.$route.params.user_id;
+    self.isUser = current_user === user;
+
     
     fetch(`/api/users/${self.$route.params.user_id}/posts`,{
       method: 'GET',
@@ -417,7 +424,7 @@ const User = Vue.component('user', {
   data: function(){
     return {
       user: {},
-      // isFollowing: false
+      isUser: false
     };
   },
   methods: {
