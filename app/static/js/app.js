@@ -356,7 +356,8 @@ const User = Vue.component('user', {
         </div>
         <div class="col-md-2 no-padding">
           <p> Posts {{user.postNum}} </p> <p> Followers {{user.followers}} </p>
-          <button v-on:click="follow" class="btn btn-primary">Follow</button>
+          <button v-if="user.isFollowing" v-on:click="follow" class="btn btn-success">Following</button>
+          <button v-else v-on:click="follow" class="btn btn-primary">Follow</button>
         </div>
       </div>
       <ul class="row list-inline">
@@ -384,6 +385,7 @@ const User = Vue.component('user', {
     .then(function (jsonResponse){
       console.log(jsonResponse);
       self.user = jsonResponse.user_data;
+
     })
     .catch(function (error){
       console.log(error);
@@ -392,13 +394,13 @@ const User = Vue.component('user', {
   data: function(){
     return {
       user: {},
-      following: false
+      // isFollowing: false
     };
   },
   methods: {
     follow: function() {
       let self = this;
-      let btn = document.querySelector('.btn.btn-primary');
+      // let btn = document.querySelector('.btn.btn-primary');
 
       fetch(`/api/users/${self.$route.params.user_id}/follow`, {
         method: 'POST',
@@ -412,9 +414,7 @@ const User = Vue.component('user', {
       .then(jsonResp => {
         if (jsonResp.hasOwnProperty("message")) {
           self.user.followers++;
-          btn.textContent = "Following";
-          btn.classList.remove('btn-primary');
-          btn.classList.add('btn-success');
+          self.user.isFollowing = true;
         }
       })
     }
