@@ -1,6 +1,8 @@
+@import url('https://fonts.googleapis.com/css?family=Lobster');
+
 body {
     padding-top: 5rem;
-    background-color: #fef5e7;
+    background-color: #f5efe6;
 }
 
 footer  {
@@ -17,6 +19,16 @@ footer  {
   height: 60px;
 }
 
+.profilePic {
+  width: 120px;
+  height: 185px;
+}
+
+.postPics {
+  width: 350px;
+  height: 200px;
+}
+
 .card-footer {
   display: flex;
   justify-content: space-between;
@@ -24,4 +36,26 @@ footer  {
 
 i {
   cursor: pointer;
+}
+
+.title{
+  font-family: 'Lobster', cursive;
+  
+}
+
+.icon{
+  color: #000;
+}
+
+.btn-color{
+  background-color: #85cb33;
+  color: #fff;
+}
+
+.border-col{
+  border: 1px solid #aeb6bf ;  
+}
+
+.shadow{
+  box-shadow: 0 2px 3px #aaaaaa;
 }
