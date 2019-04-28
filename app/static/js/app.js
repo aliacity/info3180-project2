@@ -9,23 +9,27 @@ Vue.component('app-header', {
     template: `
         <header>
             <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-              <router-link to="/" class="navbar-brand">
-                <i class="fas fa-camera d-inline-block"></i>
+              <router-link to="/" class="navbar-brand title">
+                <i class="fas fa-camera d-inline-block icon pr-1"></i>
                   Photogram
               </router-link>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              
                <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
                 <ul class="navbar-nav">
                   <li class="nav-item active">
-                    <router-link to="/" class="nav-link">Home</router-link>
+                    <router-link to="/" class="nav-link font-weight-bold">Home</router-link>
                   </li>
-                  <li class="nav-item">
-                    <router-link to="/explore" class="nav-link">Explore</router-link>
+                  <li class="nav-item active">
+                    <router-link to="/explore" class="nav-link font-weight-bold">Explore</router-link>
                   </li>
-                  <li class="nav-item">
-                    <router-link :to="{ name: 'user', params: {user_id: id} }" class="nav-link">My Profile</router-link>
+                  <li class="nav-item active">
+                    <router-link :to="{ name: 'user', params: {user_id: id} }" class="nav-link font-weight-bold">My Profile</router-link>
                   </li>
-                  <li class="nav-item">
-                    <router-link to="/logout" class="nav-link">Logout</router-link>
+                  <li class="nav-item active">
+                    <router-link to="/logout" class="nav-link font-weight-bold">Logout</router-link>
                   </li>
                 </ul>
               </div>
@@ -64,45 +68,45 @@ const Register = Vue.component('register', {
     template:`
       <div style="display:flex; justify-content: center;">
         <div style="width: 800px; margin: 0 350px 0 350px;">
-          <h4> Register </h4>
-          <div class="shadow-lg border-top rounded bg-white">
+          <h4 class="font-weight-bold"> Register </h4>
+          <div class="shadow-lg border-top rounded bg-white shadow">
             <div v-if='error'>
               {{ message }}
             </div>
             <form id="registerForm" method="post" enctype="multipart/form-data" @submit.prevent="uploadForm" class="col-md-12" style="padding: 15px 15px 30px 15px;">
               <div class="form-group">
-                <label> Username </label>
+                <label class="font-weight-bold"> Username </label>
                 <input type="text" name="username" class="form-control">
               </div>
               <div class="form-group">
-                <label> Password </label>
+                <label class="font-weight-bold"> Password </label>
                 <input type="password" name="password" class="form-control">
               </div>
               <div class="form-group">
-                <label> Firstname </label>
+                <label class="font-weight-bold"> Firstname </label>
                 <input type="text" name="firstname" class="form-control">
               </div>
               <div class="form-group">
-                <label> Lastname </label>
+                <label class="font-weight-bold"> Lastname </label>
                 <input type="text" name="lastname" class="form-control">
               </div>
               <div class="form-group">
-                <label> Email </label>
+                <label class="font-weight-bold"> Email </label>
                 <input type="text" name="email" class="form-control">
               </div>
               <div class="form-group">
-                <label> Location </label>
+                <label class="font-weight-bold"> Location </label>
                 <input type="text" name="location" class="form-control">
               </div>
               <div class="form-group">
-                <label> Biography </label>
+                <label class="font-weight-bold"> Biography </label>
                 <textarea class="form-control" name="biography" rows="3"></textarea>
               </div>
               <div class="form-group">
-                <label> Photo </label>
+                <label class="font-weight-bold"> Photo </label>
                 <input type="file" name="photo" class="form-control-file">
               </div>
-              <input type="submit" value="Register" name="register" class="btn btn-success btn-block">
+              <input type="submit" value="Register" name="register" class="btn btn-color btn-block font-weight-bold">
             </form>
           </div>
         </div>
@@ -151,21 +155,21 @@ const Login = Vue.component('login', {
   template:`
     <div style="display:flex; justify-content: center;">
       <div style="width: 800px; margin: 0 350px 0 350px;">
-        <h4> Login </h4>
-        <div class="border-top rounded bg-white">
+        <h4 class="font-weight-bold"> Login </h4>
+        <div class="border-top rounded bg-white shadow">
           <div v-if='error'>
             {{ message }}
           </div>
           <form id="loginForm" method="post" @submit.prevent="login" class="col-md-12" style="padding: 15px 15px 30px 15px;">
             <div class="form-group">
-              <label> Username </label>
+              <label class="font-weight-bold"> Username </label>
               <input type="text" name="username" class="form-control">
             </div>
             <div class="form-group">
-              <label> Password </label>
+              <label class="font-weight-bold"> Password </label>
               <input type="password" name="password" class="form-control">
             </div>
-            <input type="submit" value="Login" name="login" class="btn btn-success btn-block">
+            <input type="submit" value="Login" name="login" class="btn btn-color btn-block font-weight-bold">
           </form>
         </div>
       </div>
@@ -197,7 +201,8 @@ const Login = Vue.component('login', {
             /*Stores the jwt locally to be accessed later*/
             localStorage.setItem('token', jwt_token);
             localStorage.setItem('current_user', id);
-
+            
+            router.go();
             router.push('/explore');
           }else{
             self.error = true;
@@ -243,12 +248,15 @@ const Logout = Vue.component('logout', {
 
 const Explore = Vue.component('explore', {
   template: `
-    <div class="row">
-      <div class="col-md-7 ml-5 mr-5" v-if='valid'>
+    <div class="row d-flex flex-row-reverse">
+      <div class="col-sm-3">
+        <router-link to="/posts/new"><input type="submit" value="New Post" class="btn btn-primary btn-block"></router-link>
+      </div>
+      <div class="col-md-7 ml-5" v-if='valid'>
         <h5> {{ message }} </h5>
       </div>
-      <div class="col-md-7 ml-5 mr-5 mb-5 bg-white rounded-lg no-padding" v-for="(post, index) in posts">
-        <div class="card rounded-lg border">
+      <div class="col-md-7 ml-5 mb-5 bg-white rounded-lg no-padding mr-auto" v-for="(post, index) in posts">
+        <div class="card rounded-lg border-col">
           <div class="card-header bg-white">
             <p> 
              <router-link :to="{ name: 'user', params: {user_id: post.user_id} }"> <img :src=post.user_photo alt="User profile photo" class="img-size rounded-circle d-inline-block"/></router-link>
@@ -269,9 +277,6 @@ const Explore = Vue.component('explore', {
           </div>
         </div>
       </div>
-      <div class="col-md-2">
-        <router-link to="/posts/new"><input type="submit" value="Submit" class="btn btn-primary btn-block"></router-link>
-      </div>
     </div>
   `,
   created: function(){
@@ -291,7 +296,7 @@ const Explore = Vue.component('explore', {
     .then(function(jsonResponse){
       console.log(jsonResponse);
       if(jsonResponse.hasOwnProperty("code")){
-        router.replace('/login');
+        router.push('/login');
       }
       else{
         if(jsonResponse.hasOwnProperty("posts")){
@@ -345,12 +350,12 @@ const User = Vue.component('user', {
   template: `
     <div>
       <div class="row bg-white no-padding">
-        <img :src="'../' + user.user_photo" alt="User profile photo" class="card-img-top col-md-3 no-padding">
+        <img :src="'../' + user.user_photo" alt="User profile photo" class="card-img-top col-md-3 no-padding profilePic">
         <div class="col-md-5 mr-3 no-padding">
           <div class="card-body">
-            <p class="card-text heading"> {{user.fname}} {{user.lname}} </p>
-            <p class="card-text description text-muted"> {{user.location}} </p>
-            <p class="card-text description text-muted"> Member sinced {{user.joined}} </p>
+            <p class="card-title mb-4"> {{user.fname}} {{user.lname}} </p>
+            <p class="card-subtitle text-muted"> {{user.location}} </p>
+            <p class="card-subtitle mb-2 text-muted"> Member since {{user.joined}} </p>
             <p class="card-text description text-muted"> {{user.biography}} </p>
           </div>
         </div>
@@ -361,9 +366,9 @@ const User = Vue.component('user', {
         </div>
       </div>
       <ul class="row list-inline">
-        <li class="pt-3 col-sm-4 list-inline-item" v-for="post in user.posts">
+        <li class="col-sm-4" v-for="post in user.posts">
           <div class="card-body no-padding">
-            <img :src="'../' + post.post_photo" alt="Post photo" class="card-img-top">
+            <img :src="'../' + post.post_photo" alt="Post photo" class="card-img-top postPics">
           </div>
         </li>
       </ul>
@@ -384,8 +389,12 @@ const User = Vue.component('user', {
     })
     .then(function (jsonResponse){
       console.log(jsonResponse);
-      self.user = jsonResponse.user_data;
-
+      if(jsonResponse.hasOwnProperty("code")){
+        router.replace('/login');
+      }
+      else{
+        self.user = jsonResponse.user_data;
+      }
     })
     .catch(function (error){
       console.log(error);
@@ -489,7 +498,7 @@ const Home = Vue.component('home', {
       <div class="col-sm-5 bg-white border-top rounded">
         <div>
           <div class="card-header text-center bg-white">
-            <h3>
+            <h3 class="title">
               <i class="fas fa-camera d-inline-block"></i>
               Photogram
             </h3>
@@ -497,8 +506,8 @@ const Home = Vue.component('home', {
           <div class="card-body">
             <p> Share photos of your favourite moments with friends, family and around the world </p>
           </div>
-          <router-link to="/register"><input type="submit" value="Register" class="btn btn-success ml-4 mr-2 col-lg-5"></router-link>
-            <router-link to="/login"><input type="submit" value="Login" class="btn btn-primary col-lg-5"></router-link>
+          <router-link to="/register"><input type="submit" value="Register" class="btn btn-color ml-4 mr-2 col-lg-5 font-weight-bold"></router-link>
+            <router-link to="/login"><input type="submit" value="Login" class="btn btn-primary col-lg-5 font-weight-bold"></router-link>
         </div>
       </div>
     </div>
