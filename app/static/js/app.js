@@ -299,8 +299,10 @@ const Explore = Vue.component('explore', {
         <div class="card rounded-lg border-col">
           <div class="card-header bg-white">
             <p> 
-             <span @click="toProfile(post.user.id)" class="like"> <img :src=post.user.profile_photo alt="User profile photo" class="img-size rounded-circle d-inline-block"/></span>
+             <span @click="toProfile(post.user.id)" class="clickable"> 
+              <img :src=post.user.profile_photo alt="User profile photo" class="img-size rounded-circle d-inline-block"/>
               {{ post.user.username }}
+             </span>
             </p>
           </div>
           <img :src=post.photo class="card-img-top" alt="Picture posted by the user">
@@ -308,7 +310,7 @@ const Explore = Vue.component('explore', {
             <small> {{ post.caption }}</small>
           </div>
           <div class="card-footer bg-white border-0">
-            <small class="like" v-on:click="like(post.user.id, index)">
+            <small class="clickable" v-on:click="like(post.id, index)">
               <span v-if="post.isLiked"><i class='fas fa-heart d-inline-block text-danger'></i></span>
               <span v-else><i class="far fa-heart d-inline-block"></i></span>
               {{ post.likes }}
@@ -394,7 +396,8 @@ const Explore = Vue.component('explore', {
       .then(resp => resp.json())
       .then(jsonResp => {
         if (jsonResp.hasOwnProperty("message")) {
-          self.posts[index].likes = jsonResp.likes;
+          // self.posts[index].likes = jsonResp.likes;
+          self.posts[index].likes++;
           self.posts[index].isLiked = true;
         } else {
           console.log(jsonResp.error);
@@ -482,7 +485,7 @@ const User = Vue.component('user', {
       }
       else{
         let posts = jsonResponse.posts;
-        let uid = posts[0].user_id;
+        let uid = self.$route.params.user_id;
         self.getUser(uid);
         self.getFollowers(uid);
         self.numPosts = posts.length;
