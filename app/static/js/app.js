@@ -554,7 +554,7 @@ const User = Vue.component('user', {
       .then(resp => resp.json())
       .then(jsonResp => {
         if (jsonResp.hasOwnProperty("message")) {
-          self.user.followers++;
+          self.followers++;
           self.user.isFollowing = true;
         }
       })
